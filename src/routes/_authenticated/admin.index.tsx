@@ -178,7 +178,7 @@ function AdminDashboard() {
                       deleteMutation.mutate(registration.id);
                     }
                   }}
-                  onReceipt={() => openReceipt(registration.receipt_path)}
+                  onReceipt={() => registration.receipt_path && openReceipt(registration.receipt_path)}
                 />
               ))}
             </tbody>
