@@ -14,16 +14,138 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      camp_settings: {
+        Row: {
+          camp_dates: string
+          camp_fee: string
+          camp_name: string
+          contact_email: string
+          contact_phone: string
+          edition: string
+          id: number
+          payment_instructions: string
+          theme: string
+          updated_at: string
+          venue: string
+          whatsapp_link: string
+        }
+        Insert: {
+          camp_dates: string
+          camp_fee: string
+          camp_name: string
+          contact_email: string
+          contact_phone: string
+          edition: string
+          id?: number
+          payment_instructions?: string
+          theme: string
+          updated_at?: string
+          venue: string
+          whatsapp_link?: string
+        }
+        Update: {
+          camp_dates?: string
+          camp_fee?: string
+          camp_name?: string
+          contact_email?: string
+          contact_phone?: string
+          edition?: string
+          id?: number
+          payment_instructions?: string
+          theme?: string
+          updated_at?: string
+          venue?: string
+          whatsapp_link?: string
+        }
+        Relationships: []
+      }
+      registrations: {
+        Row: {
+          created_at: string
+          date_of_birth: string
+          email: string
+          emergency_contact: string
+          full_name: string
+          gender: string
+          guardian_name: string
+          guardian_phone: string
+          home_address: string
+          id: string
+          receipt_path: string | null
+          reviewed_at: string | null
+          school: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          date_of_birth: string
+          email: string
+          emergency_contact: string
+          full_name: string
+          gender: string
+          guardian_name: string
+          guardian_phone: string
+          home_address: string
+          id?: string
+          receipt_path?: string | null
+          reviewed_at?: string | null
+          school: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          date_of_birth?: string
+          email?: string
+          emergency_contact?: string
+          full_name?: string
+          gender?: string
+          guardian_name?: string
+          guardian_phone?: string
+          home_address?: string
+          id?: string
+          receipt_path?: string | null
+          reviewed_at?: string | null
+          school?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +272,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin"],
+    },
   },
 } as const
