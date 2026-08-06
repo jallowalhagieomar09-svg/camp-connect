@@ -82,15 +82,42 @@ export const setRegistrationStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { id: string; status: "approved" | "rejected" | "pending" }) => data)
   .handler(async ({ data, context }) => {
+    // Update the status in the database
     const { data: row, error } = await context.supabase
       .from("registrations")
       .update({ status: data.status, reviewed_at: new Date().toISOString() })
       .eq("id", data.id)
       .select("*")
       .maybeSingle();
+    
     if (error) throw new Error(error.message);
     if (!row) throw new Error("Registration not found");
-    return { registration: row, emailSent: false };
+
+    // Send email notification after successful database update
+    // Email failures should not prevent the status update
+    let emailSent = false;
+    try {
+      const { sendApprovalEmail, sendRejectionEmail } = await import("@/lib/email.server");
+      
+      if (data.status === "approved") {
+        const result = await sendApprovalEmail(row);
+        emailSent = result.success;
+        if (!result.success) {
+          console.warn(`[Admin] Approval email failed for registration ${row.id}: ${result.error}`);
+        }
+      } else if (data.status === "rejected") {
+        const result = await sendRejectionEmail(row);
+        emailSent = result.success;
+        if (!result.success) {
+          console.warn(`[Admin] Rejection email failed for registration ${row.id}: ${result.error}`);
+        }
+      }
+    } catch (emailError) {
+      // Log the error but don't throw - the status update was successful
+      console.error("[Admin] Email notification error:", emailError);
+    }
+
+    return { registration: row, emailSent };
   });
 
 export const deleteRegistration = createServerFn({ method: "POST" })
