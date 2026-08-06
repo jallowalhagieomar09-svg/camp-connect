@@ -101,6 +101,9 @@ function RegisterPage() {
   const [file, setFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [disability, setDisability] = useState<YesNoValue>("");
+  const [health, setHealth] = useState<YesNoValue>("");
+
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
