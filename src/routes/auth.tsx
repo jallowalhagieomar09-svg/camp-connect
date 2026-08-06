@@ -105,15 +105,11 @@ function AuthPage() {
           </button>
         </form>
 
-        <button
-          type="button"
-          onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-          className="mt-5 w-full text-sm font-semibold text-primary underline-offset-4 hover:underline"
-        >
-          {mode === "signin"
-            ? "First time? Create the admin account"
-            : "Already have an account? Sign in"}
-        </button>
+        <p className="mt-5 text-center text-xs font-semibold text-foreground/60">
+          Admin accounts are created by the CFG foundation team. Contact an existing administrator if
+          you need access.
+        </p>
+
 
         <Link
           to="/"
