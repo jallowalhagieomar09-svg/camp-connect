@@ -134,11 +134,26 @@ function RegisterPage() {
         .upload(path, file, { contentType: file.type });
       if (uploadError) throw uploadError;
 
+      const {
+        has_disability,
+        disability_details,
+        has_health_condition,
+        health_condition_details,
+        ...rest
+      } = parsed.data;
+
       const { error: insertError } = await supabase.from("registrations").insert({
-        ...parsed.data,
+        ...rest,
+        has_disability: has_disability === "yes",
+        disability_details:
+          has_disability === "yes" ? (disability_details?.trim() ?? null) : null,
+        has_health_condition: has_health_condition === "yes",
+        health_condition_details:
+          has_health_condition === "yes" ? (health_condition_details?.trim() ?? null) : null,
         receipt_path: path,
         status: "pending",
       });
+
       if (insertError) throw insertError;
 
       setDone(true);
