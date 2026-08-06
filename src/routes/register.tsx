@@ -259,6 +259,63 @@ function RegisterPage() {
                 <FieldError message={errors["home_address"]} />
               </div>
 
+              <div className="rounded-2xl border border-border bg-muted/40 p-4 sm:p-5">
+                <YesNo
+                  name="has_disability"
+                  question="Do you have any disability?"
+                  value={disability}
+                  onChange={setDisability}
+                />
+                <FieldError message={errors["has_disability"]} />
+                {disability === "yes" ? (
+                  <div className="mt-4">
+                    <label
+                      htmlFor="disability_details"
+                      className="text-sm font-bold text-foreground/85"
+                    >
+                      Please specify the type of disability.
+                    </label>
+                    <textarea
+                      id="disability_details"
+                      name="disability_details"
+                      rows={3}
+                      placeholder="Describe the type of disability"
+                      className={inputClass}
+                    />
+                    <FieldError message={errors["disability_details"]} />
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="rounded-2xl border border-border bg-muted/40 p-4 sm:p-5">
+                <YesNo
+                  name="has_health_condition"
+                  question="Do you have any existing health condition or medical issue that we should be aware of?"
+                  value={health}
+                  onChange={setHealth}
+                />
+                <FieldError message={errors["has_health_condition"]} />
+                {health === "yes" ? (
+                  <div className="mt-4">
+                    <label
+                      htmlFor="health_condition_details"
+                      className="text-sm font-bold text-foreground/85"
+                    >
+                      Please provide details of your health condition or medical issue.
+                    </label>
+                    <textarea
+                      id="health_condition_details"
+                      name="health_condition_details"
+                      rows={3}
+                      placeholder="Medication, allergies, conditions…"
+                      className={inputClass}
+                    />
+                    <FieldError message={errors["health_condition_details"]} />
+                  </div>
+                ) : null}
+              </div>
+
+
               <div>
                 <span className="text-sm font-bold text-foreground/85">
                   Proof of payment (image or PDF)
