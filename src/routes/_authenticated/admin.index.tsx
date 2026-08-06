@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, Clock, FileText, Loader2, Trash2, Users, XCircle } from "lucide-react";
+import { CheckCircle2, Clock, FileText, Loader2, Trash2, Users, XCircle, Mail, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import {
   ensureAdmin,
@@ -56,13 +56,27 @@ function AdminDashboard() {
       updateStatus({ data: input }),
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["registrations"] });
-      toast.success(
-        result.emailSent
-          ? "Status updated and confirmation email sent."
-          : "Status updated. Email delivery activates once the camp email domain is verified.",
-      );
+      
+      if (result.emailSent) {
+        toast.success(
+          result.registration.status === "approved"
+            ? "Status updated and approval email sent! ✅"
+            : "Status updated and rejection email sent! ✅"
+        );
+      } else {
+        toast.success(
+          `Status updated to ${result.registration.status}. Email delivery will activate once verified. ⚠️`,
+          {
+            description: "Database updated successfully, but email not sent yet.",
+          }
+        );
+      }
     },
-    onError: () => toast.error("Could not update this registration."),
+    onError: (error) => {
+      toast.error("Could not update this registration.", {
+        description: error instanceof Error ? error.message : "Unknown error",
+      });
+    },
   });
 
   const deleteMutation = useMutation({
@@ -119,7 +133,7 @@ function AdminDashboard() {
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <h1 className="text-2xl font-black text-primary sm:text-3xl">Registrations</h1>
       <p className="mt-2 text-sm text-foreground/65">
-        Verify payment receipts, then approve or reject each participant.
+        Verify payment receipts, then approve or reject each participant. Email notifications will be sent automatically.
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -253,22 +267,26 @@ function Row({
           <button
             disabled={busy || registration.status === "approved"}
             onClick={() => onStatus("approved")}
-            className="rounded-full bg-leaf px-3 py-1.5 text-xs font-bold text-primary-foreground disabled:opacity-40"
+            title="Approve and send confirmation email"
+            className="inline-flex items-center gap-1 rounded-full bg-leaf px-3 py-1.5 text-xs font-bold text-primary-foreground disabled:opacity-40 hover:bg-leaf/90 transition-colors"
           >
+            <CheckCircle2 className="h-3.5 w-3.5" />
             Approve
           </button>
           <button
             disabled={busy || registration.status === "rejected"}
             onClick={() => onStatus("rejected")}
-            className="rounded-full border border-destructive px-3 py-1.5 text-xs font-bold text-destructive disabled:opacity-40"
+            title="Reject and send notification email"
+            className="inline-flex items-center gap-1 rounded-full border border-destructive px-3 py-1.5 text-xs font-bold text-destructive disabled:opacity-40 hover:bg-destructive/5 transition-colors"
           >
+            <XCircle className="h-3.5 w-3.5" />
             Reject
           </button>
           <button
             disabled={busy}
             onClick={onDelete}
             aria-label="Delete registration"
-            className="rounded-full border border-border p-1.5 text-foreground/60 disabled:opacity-40"
+            className="rounded-full border border-border p-1.5 text-foreground/60 disabled:opacity-40 hover:bg-destructive/10 transition-colors"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
