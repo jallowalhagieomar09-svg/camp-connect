@@ -84,8 +84,15 @@ export function SiteFooter({ settings }: { settings: CampSettings }) {
         </div>
       </div>
       <div className="border-t border-white/10 px-4 py-5 text-center text-xs text-primary-foreground/60">
-        © {new Date().getFullYear()} Children Foundation The Gambia (CFG). All rights reserved.
+        <p>© {new Date().getFullYear()} Children Foundation The Gambia (CFG). All rights reserved.</p>
+        <Link
+          to="/auth"
+          className="mt-3 inline-block font-bold tracking-[0.16em] text-accent uppercase transition-opacity hover:opacity-80"
+        >
+          Admin Log In
+        </Link>
       </div>
+
     </footer>
   );
 }
