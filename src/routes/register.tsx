@@ -362,3 +362,45 @@ function FieldError({ message }: { message?: string | undefined }) {
   if (!message) return null;
   return <p className="mt-1.5 text-xs font-semibold text-destructive">{message}</p>;
 }
+
+type YesNoValue = "" | "yes" | "no";
+
+function YesNo({
+  name,
+  question,
+  value,
+  onChange,
+}: {
+  name: string;
+  question: string;
+  value: YesNoValue;
+  onChange: (value: YesNoValue) => void;
+}) {
+  return (
+    <fieldset>
+      <legend className="text-sm font-bold text-foreground/85">{question}</legend>
+      <div className="mt-2.5 flex gap-2">
+        {(["yes", "no"] as const).map((option) => (
+          <label
+            key={option}
+            className={`flex-1 cursor-pointer rounded-xl border px-4 py-2.5 text-center text-sm font-bold capitalize transition-colors ${
+              value === option
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-input bg-card text-foreground/70 hover:border-primary"
+            }`}
+          >
+            <input
+              type="radio"
+              name={name}
+              value={option}
+              checked={value === option}
+              onChange={() => onChange(option)}
+              className="sr-only"
+            />
+            {option}
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
