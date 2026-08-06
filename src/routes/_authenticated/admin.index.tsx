@@ -161,6 +161,8 @@ function AdminDashboard() {
                 <th className="px-4 py-3">Participant</th>
                 <th className="px-4 py-3">Guardian</th>
                 <th className="px-4 py-3">Contact</th>
+                <th className="px-4 py-3">Health &amp; disability</th>
+
                 <th className="px-4 py-3">Receipt</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
