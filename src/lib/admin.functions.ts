@@ -8,11 +8,23 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export const ensureAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    const email = String(context.claims["email"] ?? "");
+    const fullName = String(
+      (context.claims["user_metadata"] as Record<string, unknown> | undefined)?.["full_name"] ??
+        email.split("@")[0] ??
+        "",
+    );
+
     const { data: isAdmin } = await context.supabase.rpc("has_role", {
       _user_id: context.userId,
       _role: "admin",
     });
-    if (isAdmin) return { isAdmin: true };
+    if (isAdmin) {
+      await context.supabase
+        .from("admins")
+        .upsert({ id: context.userId, email, full_name: fullName, role: "admin" });
+      return { isAdmin: true };
+    }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { count, error } = await supabaseAdmin
@@ -26,8 +38,23 @@ export const ensureAdmin = createServerFn({ method: "POST" })
       .from("user_roles")
       .insert({ user_id: context.userId, role: "admin" });
     if (insertError) throw new Error(insertError.message);
+    await supabaseAdmin
+      .from("admins")
+      .upsert({ id: context.userId, email, full_name: fullName, role: "admin" });
     return { isAdmin: true };
   });
+
+export const listAdmins = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("admins")
+      .select("id, full_name, email, role, created_at")
+      .order("created_at", { ascending: true });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
 
 export const listRegistrations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
