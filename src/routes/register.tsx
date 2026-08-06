@@ -28,17 +28,42 @@ export const Route = createFileRoute("/register")({
   component: RegisterPage,
 });
 
-const schema = z.object({
-  full_name: z.string().trim().min(2, "Please enter the full name").max(120),
-  date_of_birth: z.string().min(1, "Please select a date of birth"),
-  gender: z.string().min(1, "Please select a gender"),
-  school: z.string().trim().min(2, "Please enter the school name").max(160),
-  guardian_name: z.string().trim().min(2, "Please enter the parent/guardian name").max(120),
-  guardian_phone: z.string().trim().min(7, "Please enter a valid phone number").max(40),
-  email: z.string().trim().email("Please enter a valid email address").max(160),
-  home_address: z.string().trim().min(4, "Please enter the home address").max(300),
-  emergency_contact: z.string().trim().min(5, "Please enter an emergency contact").max(160),
-});
+const schema = z
+  .object({
+    full_name: z.string().trim().min(2, "Please enter the full name").max(120),
+    date_of_birth: z.string().min(1, "Please select a date of birth"),
+    gender: z.string().min(1, "Please select a gender"),
+    school: z.string().trim().min(2, "Please enter the school name").max(160),
+    guardian_name: z.string().trim().min(2, "Please enter the parent/guardian name").max(120),
+    guardian_phone: z.string().trim().min(7, "Please enter a valid phone number").max(40),
+    email: z.string().trim().email("Please enter a valid email address").max(160),
+    home_address: z.string().trim().min(4, "Please enter the home address").max(300),
+    emergency_contact: z.string().trim().min(5, "Please enter an emergency contact").max(160),
+    has_disability: z.enum(["yes", "no"], { message: "Please select an option" }),
+    disability_details: z.string().trim().max(600).optional(),
+    has_health_condition: z.enum(["yes", "no"], { message: "Please select an option" }),
+    health_condition_details: z.string().trim().max(600).optional(),
+  })
+  .superRefine((values, ctx) => {
+    if (values.has_disability === "yes" && (values.disability_details ?? "").trim().length < 3) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["disability_details"],
+        message: "Please specify the type of disability",
+      });
+    }
+    if (
+      values.has_health_condition === "yes" &&
+      (values.health_condition_details ?? "").trim().length < 3
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["health_condition_details"],
+        message: "Please provide details of the health condition",
+      });
+    }
+  });
+
 
 const FIELDS = [
   { name: "full_name", label: "Full name", type: "text", placeholder: "Participant's full name" },
