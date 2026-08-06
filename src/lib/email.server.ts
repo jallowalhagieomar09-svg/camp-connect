@@ -17,9 +17,18 @@ export function getWhatsAppGroupLink(): string {
 }
 
 /**
- * Email template types
+ * Escape HTML special characters to prevent injection
  */
-export type EmailTemplate = "approval" | "rejection";
+function escapeHtml(text: string): string {
+  const htmlEscapeMap: Record<string, string> = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  };
+  return text.replace(/[&<>"']/g, (char) => htmlEscapeMap[char] || char);
+}
 
 /**
  * Send email via Resend API
@@ -70,6 +79,7 @@ async function sendEmailViaResend(
  */
 function generateApprovalEmailHtml(registration: Registration): string {
   const whatsappLink = getWhatsAppGroupLink();
+  const fullName = escapeHtml(registration.full_name);
 
   return `
     <!DOCTYPE html>
@@ -96,7 +106,7 @@ function generateApprovalEmailHtml(registration: Registration): string {
             <h1>🎉 Congratulations!</h1>
           </div>
           <div class="content">
-            <p class="greeting">Dear ${escapeHtml(registration.full_name)},</p>
+            <p class="greeting">Dear ${fullName},</p>
             
             <p class="message">
               We are pleased to inform you that your application for the <strong>CFG Children and Youth Summer Camp</strong> has been <strong>accepted</strong>.
@@ -115,7 +125,11 @@ function generateApprovalEmailHtml(registration: Registration): string {
             </p>
             
             <p class="message">
-              ${whatsappLink ? `Please join the WhatsApp group using the link below to stay updated on all preparations ahead of the camp:<br><br><a href="${escapeHtml(whatsappLink)}" class="cta-button">Join WhatsApp Group</a>` : `Please watch your email for the WhatsApp group link which will be shared shortly.`}
+              ${
+                whatsappLink
+                  ? `Please join the WhatsApp group using the link below to stay updated on all preparations ahead of the camp:<br><br><a href="${escapeHtml(whatsappLink)}" class="cta-button">Join WhatsApp Group</a>`
+                  : `Please watch your email for the WhatsApp group link which will be shared shortly.`
+              }
             </p>
             
             <p class="message">
@@ -142,6 +156,8 @@ function generateApprovalEmailHtml(registration: Registration): string {
  * Generate HTML for rejection email
  */
 function generateRejectionEmailHtml(registration: Registration): string {
+  const fullName = escapeHtml(registration.full_name);
+
   return `
     <!DOCTYPE html>
     <html>
@@ -165,7 +181,7 @@ function generateRejectionEmailHtml(registration: Registration): string {
             <h1>Application Status Update</h1>
           </div>
           <div class="content">
-            <p class="greeting">Dear ${escapeHtml(registration.full_name)},</p>
+            <p class="greeting">Dear ${fullName},</p>
             
             <p class="message">
               Thank you for your interest in the <strong>CFG Children and Youth Summer Camp</strong>. We appreciate you taking the time to complete and submit your application.
@@ -200,15 +216,6 @@ function generateRejectionEmailHtml(registration: Registration): string {
 }
 
 /**
- * Escape HTML special characters to prevent injection
- */
-function escapeHtml(text: string): string {
-  const div = document.createElement("div");
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-/**
  * Send approval email to applicant
  */
 export async function sendApprovalEmail(
@@ -222,7 +229,9 @@ export async function sendApprovalEmail(
   const subject = "Congratulations! You Have Been Accepted for the CFG Children and Youth Summer Camp";
   const html = generateApprovalEmailHtml(registration);
 
-  console.log(`[Email] Sending approval email to ${registration.email} for ${registration.full_name}`);
+  console.log(
+    `[Email] Sending approval email to ${registration.email} for ${registration.full_name}`
+  );
   return sendEmailViaResend(registration.email, subject, html);
 }
 
@@ -240,6 +249,8 @@ export async function sendRejectionEmail(
   const subject = "CFG Children and Youth Summer Camp - Application Status Update";
   const html = generateRejectionEmailHtml(registration);
 
-  console.log(`[Email] Sending rejection email to ${registration.email} for ${registration.full_name}`);
+  console.log(
+    `[Email] Sending rejection email to ${registration.email} for ${registration.full_name}`
+  );
   return sendEmailViaResend(registration.email, subject, html);
 }
