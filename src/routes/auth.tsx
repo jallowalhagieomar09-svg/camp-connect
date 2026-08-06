@@ -26,7 +26,6 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -35,17 +34,8 @@ function AuthPage() {
     event.preventDefault();
     setLoading(true);
     try {
-      if (mode === "signin") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: `${window.location.origin}/admin` },
-        });
-        if (error) throw error;
-      }
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
       navigate({ to: "/admin" });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Sign in failed");
@@ -101,19 +91,15 @@ function AuthPage() {
             className="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-extrabold text-primary-foreground disabled:opacity-60"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
-            {mode === "signin" ? "Sign in" : "Create admin account"}
+            Sign in
           </button>
         </form>
 
-        <button
-          type="button"
-          onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-          className="mt-5 w-full text-sm font-semibold text-primary underline-offset-4 hover:underline"
-        >
-          {mode === "signin"
-            ? "First time? Create the admin account"
-            : "Already have an account? Sign in"}
-        </button>
+        <p className="mt-5 text-center text-xs font-semibold text-foreground/60">
+          Admin accounts are created by the CFG foundation team. Contact an existing administrator if
+          you need access.
+        </p>
+
 
         <Link
           to="/"

@@ -28,17 +28,42 @@ export const Route = createFileRoute("/register")({
   component: RegisterPage,
 });
 
-const schema = z.object({
-  full_name: z.string().trim().min(2, "Please enter the full name").max(120),
-  date_of_birth: z.string().min(1, "Please select a date of birth"),
-  gender: z.string().min(1, "Please select a gender"),
-  school: z.string().trim().min(2, "Please enter the school name").max(160),
-  guardian_name: z.string().trim().min(2, "Please enter the parent/guardian name").max(120),
-  guardian_phone: z.string().trim().min(7, "Please enter a valid phone number").max(40),
-  email: z.string().trim().email("Please enter a valid email address").max(160),
-  home_address: z.string().trim().min(4, "Please enter the home address").max(300),
-  emergency_contact: z.string().trim().min(5, "Please enter an emergency contact").max(160),
-});
+const schema = z
+  .object({
+    full_name: z.string().trim().min(2, "Please enter the full name").max(120),
+    date_of_birth: z.string().min(1, "Please select a date of birth"),
+    gender: z.string().min(1, "Please select a gender"),
+    school: z.string().trim().min(2, "Please enter the school name").max(160),
+    guardian_name: z.string().trim().min(2, "Please enter the parent/guardian name").max(120),
+    guardian_phone: z.string().trim().min(7, "Please enter a valid phone number").max(40),
+    email: z.string().trim().email("Please enter a valid email address").max(160),
+    home_address: z.string().trim().min(4, "Please enter the home address").max(300),
+    emergency_contact: z.string().trim().min(5, "Please enter an emergency contact").max(160),
+    has_disability: z.enum(["yes", "no"], { message: "Please select an option" }),
+    disability_details: z.string().trim().max(600).optional(),
+    has_health_condition: z.enum(["yes", "no"], { message: "Please select an option" }),
+    health_condition_details: z.string().trim().max(600).optional(),
+  })
+  .superRefine((values, ctx) => {
+    if (values.has_disability === "yes" && (values.disability_details ?? "").trim().length < 3) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["disability_details"],
+        message: "Please specify the type of disability",
+      });
+    }
+    if (
+      values.has_health_condition === "yes" &&
+      (values.health_condition_details ?? "").trim().length < 3
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["health_condition_details"],
+        message: "Please provide details of the health condition",
+      });
+    }
+  });
+
 
 const FIELDS = [
   { name: "full_name", label: "Full name", type: "text", placeholder: "Participant's full name" },
@@ -76,6 +101,9 @@ function RegisterPage() {
   const [file, setFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [disability, setDisability] = useState<YesNoValue>("");
+  const [health, setHealth] = useState<YesNoValue>("");
+
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -109,11 +137,26 @@ function RegisterPage() {
         .upload(path, file, { contentType: file.type });
       if (uploadError) throw uploadError;
 
+      const {
+        has_disability,
+        disability_details,
+        has_health_condition,
+        health_condition_details,
+        ...rest
+      } = parsed.data;
+
       const { error: insertError } = await supabase.from("registrations").insert({
-        ...parsed.data,
+        ...rest,
+        has_disability: has_disability === "yes",
+        disability_details:
+          has_disability === "yes" ? (disability_details?.trim() ?? null) : null,
+        has_health_condition: has_health_condition === "yes",
+        health_condition_details:
+          has_health_condition === "yes" ? (health_condition_details?.trim() ?? null) : null,
         receipt_path: path,
         status: "pending",
       });
+
       if (insertError) throw insertError;
 
       setDone(true);
@@ -219,6 +262,63 @@ function RegisterPage() {
                 <FieldError message={errors["home_address"]} />
               </div>
 
+              <div className="rounded-2xl border border-border bg-muted/40 p-4 sm:p-5">
+                <YesNo
+                  name="has_disability"
+                  question="Do you have any disability?"
+                  value={disability}
+                  onChange={setDisability}
+                />
+                <FieldError message={errors["has_disability"]} />
+                {disability === "yes" ? (
+                  <div className="mt-4">
+                    <label
+                      htmlFor="disability_details"
+                      className="text-sm font-bold text-foreground/85"
+                    >
+                      Please specify the type of disability.
+                    </label>
+                    <textarea
+                      id="disability_details"
+                      name="disability_details"
+                      rows={3}
+                      placeholder="Describe the type of disability"
+                      className={inputClass}
+                    />
+                    <FieldError message={errors["disability_details"]} />
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="rounded-2xl border border-border bg-muted/40 p-4 sm:p-5">
+                <YesNo
+                  name="has_health_condition"
+                  question="Do you have any existing health condition or medical issue that we should be aware of?"
+                  value={health}
+                  onChange={setHealth}
+                />
+                <FieldError message={errors["has_health_condition"]} />
+                {health === "yes" ? (
+                  <div className="mt-4">
+                    <label
+                      htmlFor="health_condition_details"
+                      className="text-sm font-bold text-foreground/85"
+                    >
+                      Please provide details of your health condition or medical issue.
+                    </label>
+                    <textarea
+                      id="health_condition_details"
+                      name="health_condition_details"
+                      rows={3}
+                      placeholder="Medication, allergies, conditions…"
+                      className={inputClass}
+                    />
+                    <FieldError message={errors["health_condition_details"]} />
+                  </div>
+                ) : null}
+              </div>
+
+
               <div>
                 <span className="text-sm font-bold text-foreground/85">
                   Proof of payment (image or PDF)
@@ -261,4 +361,46 @@ function RegisterPage() {
 function FieldError({ message }: { message?: string | undefined }) {
   if (!message) return null;
   return <p className="mt-1.5 text-xs font-semibold text-destructive">{message}</p>;
+}
+
+type YesNoValue = "" | "yes" | "no";
+
+function YesNo({
+  name,
+  question,
+  value,
+  onChange,
+}: {
+  name: string;
+  question: string;
+  value: YesNoValue;
+  onChange: (value: YesNoValue) => void;
+}) {
+  return (
+    <fieldset>
+      <legend className="text-sm font-bold text-foreground/85">{question}</legend>
+      <div className="mt-2.5 flex gap-2">
+        {(["yes", "no"] as const).map((option) => (
+          <label
+            key={option}
+            className={`flex-1 cursor-pointer rounded-xl border px-4 py-2.5 text-center text-sm font-bold capitalize transition-colors ${
+              value === option
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-input bg-card text-foreground/70 hover:border-primary"
+            }`}
+          >
+            <input
+              type="radio"
+              name={name}
+              value={option}
+              checked={value === option}
+              onChange={() => onChange(option)}
+              className="sr-only"
+            />
+            {option}
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  );
 }

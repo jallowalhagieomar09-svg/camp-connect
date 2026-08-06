@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      admins: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name?: string
+          id: string
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: []
+      }
       camp_settings: {
         Row: {
           camp_dates: string
@@ -63,12 +87,16 @@ export type Database = {
         Row: {
           created_at: string
           date_of_birth: string
+          disability_details: string | null
           email: string
           emergency_contact: string
           full_name: string
           gender: string
           guardian_name: string
           guardian_phone: string
+          has_disability: boolean
+          has_health_condition: boolean
+          health_condition_details: string | null
           home_address: string
           id: string
           receipt_path: string | null
@@ -79,12 +107,16 @@ export type Database = {
         Insert: {
           created_at?: string
           date_of_birth: string
+          disability_details?: string | null
           email: string
           emergency_contact: string
           full_name: string
           gender: string
           guardian_name: string
           guardian_phone: string
+          has_disability?: boolean
+          has_health_condition?: boolean
+          health_condition_details?: string | null
           home_address: string
           id?: string
           receipt_path?: string | null
@@ -95,12 +127,16 @@ export type Database = {
         Update: {
           created_at?: string
           date_of_birth?: string
+          disability_details?: string | null
           email?: string
           emergency_contact?: string
           full_name?: string
           gender?: string
           guardian_name?: string
           guardian_phone?: string
+          has_disability?: boolean
+          has_health_condition?: boolean
+          health_condition_details?: string | null
           home_address?: string
           id?: string
           receipt_path?: string | null

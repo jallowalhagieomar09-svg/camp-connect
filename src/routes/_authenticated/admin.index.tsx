@@ -161,6 +161,8 @@ function AdminDashboard() {
                 <th className="px-4 py-3">Participant</th>
                 <th className="px-4 py-3">Guardian</th>
                 <th className="px-4 py-3">Contact</th>
+                <th className="px-4 py-3">Health &amp; disability</th>
+
                 <th className="px-4 py-3">Receipt</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
@@ -220,6 +222,21 @@ function Row({
         <p className="text-xs break-all text-foreground/70">{registration.email}</p>
         <p className="mt-1 text-xs text-foreground/60">{registration.home_address}</p>
       </td>
+      <td className="px-4 py-4 max-w-[220px]">
+        <p className="text-xs font-bold text-foreground/80">
+          Disability: {registration.has_disability ? "Yes" : "No"}
+        </p>
+        {registration.has_disability && registration.disability_details ? (
+          <p className="text-xs text-foreground/60">{registration.disability_details}</p>
+        ) : null}
+        <p className="mt-1.5 text-xs font-bold text-foreground/80">
+          Health condition: {registration.has_health_condition ? "Yes" : "No"}
+        </p>
+        {registration.has_health_condition && registration.health_condition_details ? (
+          <p className="text-xs text-foreground/60">{registration.health_condition_details}</p>
+        ) : null}
+      </td>
+
       <td className="px-4 py-4">
         <button
           onClick={onReceipt}
