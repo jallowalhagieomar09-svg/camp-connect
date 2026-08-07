@@ -95,7 +95,8 @@ class SmtpSession {
 }
 
 async function openWorkerStream(config: SmtpConfig): Promise<Stream> {
-  const { connect } = (await import(/* @vite-ignore */ "cloudflare:sockets")) as {
+  const socketsModule = "cloudflare:sockets";
+  const { connect } = (await import(/* @vite-ignore */ socketsModule)) as {
     connect: (
       address: string,
       options?: { secureTransport?: "on" | "off" | "starttls"; allowHalfOpen?: boolean },
