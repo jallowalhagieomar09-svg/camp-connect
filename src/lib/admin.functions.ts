@@ -2,8 +2,11 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 /**
- * Confirms the signed-in account is an admin. The very first account to sign in
- * claims the admin role, so the foundation can bootstrap its own dashboard.
+ * Confirms the signed-in account is an administrator.
+ *
+ * An account is an admin when it already holds the `admin` role, or when its email
+ * is listed in the `admins` table (added by an existing administrator). The very first
+ * account to sign in claims the admin role so the foundation can bootstrap its dashboard.
  */
 export const ensureAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -27,17 +30,33 @@ export const ensureAdmin = createServerFn({ method: "POST" })
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { count, error } = await supabaseAdmin
-      .from("user_roles")
-      .select("id", { count: "exact", head: true })
-      .eq("role", "admin");
-    if (error) throw new Error(error.message);
-    if ((count ?? 0) > 0) return { isAdmin: false };
+
+    // Already listed as an administrator (by account id or email)? Grant the role.
+    let listed = false;
+    if (email) {
+      const { data: existing } = await supabaseAdmin
+        .from("admins")
+        .select("id, email")
+        .or(`id.eq.${context.userId},email.eq.${email}`)
+        .limit(1);
+      listed = (existing?.length ?? 0) > 0;
+    }
+
+    if (!listed) {
+      const { count, error } = await supabaseAdmin
+        .from("user_roles")
+        .select("id", { count: "exact", head: true })
+        .eq("role", "admin");
+      if (error) throw new Error(error.message);
+      if ((count ?? 0) > 0) return { isAdmin: false };
+    }
 
     const { error: insertError } = await supabaseAdmin
       .from("user_roles")
       .insert({ user_id: context.userId, role: "admin" });
-    if (insertError) throw new Error(insertError.message);
+    if (insertError && !insertError.message.includes("duplicate")) {
+      throw new Error(insertError.message);
+    }
     await supabaseAdmin
       .from("admins")
       .upsert({ id: context.userId, email, full_name: fullName, role: "admin" });

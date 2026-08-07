@@ -64,12 +64,9 @@ function AdminDashboard() {
             : "Status updated and rejection email sent! ✅"
         );
       } else {
-        toast.success(
-          `Status updated to ${result.registration.status}. Email delivery will activate once verified. ⚠️`,
-          {
-            description: "Database updated successfully, but email not sent yet.",
-          }
-        );
+        toast.warning(`Status updated to ${result.registration.status}, but the email failed.`, {
+          description: "The applicant was not notified — check the email settings and try again.",
+        });
       }
     },
     onError: (error) => {
