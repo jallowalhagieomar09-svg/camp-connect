@@ -187,11 +187,18 @@ function RegisterPage() {
             </p>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <Link
-                to="/"
+                to="/receipt"
                 className="rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground"
+              >
+                Download registration slip
+              </Link>
+              <Link
+                to="/"
+                className="rounded-full border border-border px-6 py-3 text-sm font-bold text-primary"
               >
                 Back to home
               </Link>
+
               <a
                 href={`tel:${settings.contact_phone.split("/")[0]?.trim().replace(/\s/g, "")}`}
                 className="rounded-full border border-border px-6 py-3 text-sm font-bold text-primary"
