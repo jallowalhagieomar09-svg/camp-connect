@@ -67,8 +67,14 @@ export function SiteFooter({ settings }: { settings: CampSettings }) {
             <li>{settings.camp_dates}</li>
             <li>{settings.venue}</li>
             <li>Camp fee: {settings.camp_fee}</li>
+            <li>
+              <Link to="/receipt" className="font-bold text-accent hover:opacity-80">
+                Download registration slip
+              </Link>
+            </li>
           </ul>
         </div>
+
         <div>
           <h3 className="text-sm font-bold tracking-[0.16em] text-accent uppercase">Contact</h3>
           <ul className="mt-4 space-y-2 text-sm text-primary-foreground/80">
