@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, Clock, FileText, Loader2, Trash2, Users, XCircle, Mail, AlertCircle } from "lucide-react";
+import { CheckCircle2, Clock, Download, FileText, Loader2, Trash2, Users, XCircle, Mail, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import {
   ensureAdmin,
@@ -11,7 +11,8 @@ import {
   deleteRegistration,
   getReceiptUrl,
 } from "@/lib/admin.functions";
-import type { Registration } from "@/lib/camp";
+import { campSettingsQueryOptions, FALLBACK_SETTINGS, type Registration } from "@/lib/camp";
+import { downloadRegistrationReceipt } from "@/lib/receipt-pdf";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   head: () => ({
@@ -44,6 +45,9 @@ function AdminDashboard() {
       .then((result) => setIsAdmin(result.isAdmin))
       .catch(() => setIsAdmin(false));
   }, [checkAdmin]);
+
+  const { data: campSettings } = useQuery(campSettingsQueryOptions);
+  const settings = campSettings ?? FALLBACK_SETTINGS;
 
   const { data: registrations = [], isLoading } = useQuery({
     queryKey: ["registrations"],
@@ -192,6 +196,12 @@ function AdminDashboard() {
                     }
                   }}
                   onReceipt={() => registration.receipt_path && openReceipt(registration.receipt_path)}
+                  onSlip={() =>
+                    downloadRegistrationReceipt(
+                      { ...registration, has_receipt: Boolean(registration.receipt_path) },
+                      settings,
+                    ).catch(() => toast.error("Could not build the PDF slip"))
+                  }
                 />
               ))}
             </tbody>
@@ -208,12 +218,14 @@ function Row({
   onStatus,
   onDelete,
   onReceipt,
+  onSlip,
 }: {
   registration: Registration;
   busy: boolean;
   onStatus: (status: "approved" | "rejected") => void;
   onDelete: () => void;
   onReceipt: () => void;
+  onSlip: () => void;
 }) {
   return (
     <tr className="align-top">
@@ -254,6 +266,13 @@ function Row({
           className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-bold text-primary"
         >
           <FileText className="h-3.5 w-3.5" /> View
+        </button>
+        <button
+          onClick={onSlip}
+          title="Download the participant's registration slip (PDF)"
+          className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-bold text-primary"
+        >
+          <Download className="h-3.5 w-3.5" /> Slip
         </button>
       </td>
       <td className="px-4 py-4">
