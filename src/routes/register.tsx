@@ -137,7 +137,7 @@ function RegisterPage() {
       const path = `${crypto.randomUUID()}.${extension}`;
       const { error: uploadError } = await supabase.storage
         .from("payment-receipts")
-        .upload(path, file, { contentType: file.type });
+        .upload(path, file, { contentType: file.type || "application/octet-stream" });
       if (uploadError) throw uploadError;
 
       const {
