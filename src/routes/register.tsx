@@ -121,7 +121,10 @@ function RegisterPage() {
       nextErrors["receipt"] = "Please upload your proof of payment";
     } else if (file.size > 10 * 1024 * 1024) {
       nextErrors["receipt"] = "File must be smaller than 10MB";
-    } else if (!/(image\/|application\/pdf)/.test(file.type)) {
+    } else if (
+      !/^(image\/|application\/pdf)/.test(file.type) &&
+      !/\.(jpe?g|png|gif|webp|heic|heif|pdf)$/i.test(file.name)
+    ) {
       nextErrors["receipt"] = "Only images or PDF files are allowed";
     }
 
