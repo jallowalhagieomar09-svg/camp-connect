@@ -121,7 +121,10 @@ function RegisterPage() {
       nextErrors["receipt"] = "Please upload your proof of payment";
     } else if (file.size > 10 * 1024 * 1024) {
       nextErrors["receipt"] = "File must be smaller than 10MB";
-    } else if (!/(image\/|application\/pdf)/.test(file.type)) {
+    } else if (
+      !/^(image\/|application\/pdf)/.test(file.type) &&
+      !/\.(jpe?g|png|gif|webp|heic|heif|pdf)$/i.test(file.name)
+    ) {
       nextErrors["receipt"] = "Only images or PDF files are allowed";
     }
 
@@ -134,7 +137,7 @@ function RegisterPage() {
       const path = `${crypto.randomUUID()}.${extension}`;
       const { error: uploadError } = await supabase.storage
         .from("payment-receipts")
-        .upload(path, file, { contentType: file.type });
+        .upload(path, file, { contentType: file.type || "application/octet-stream" });
       if (uploadError) throw uploadError;
 
       const {
@@ -330,23 +333,27 @@ function RegisterPage() {
                 <span className="text-sm font-bold text-foreground/85">
                   Proof of payment (image or PDF)
                 </span>
-                <label
-                  htmlFor="receipt"
-                  className="mt-1.5 flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-input bg-muted/60 px-4 py-4 text-sm font-semibold text-foreground/70 transition-colors hover:border-primary"
-                >
-                  <Upload className="h-5 w-5 text-primary" />
-                  {file ? file.name : "Tap to upload your receipt"}
-                </label>
                 <input
                   id="receipt"
                   name="receipt"
                   type="file"
-                  accept="image/*,application/pdf"
-                  className="hidden"
+                  accept="image/*,.pdf,application/pdf"
+                  className="sr-only"
                   onChange={(event) => setFile(event.target.files?.[0] ?? null)}
                 />
+                <button
+                  type="button"
+                  onClick={() => document.getElementById("receipt")?.click()}
+                  className="mt-1.5 flex w-full cursor-pointer items-center gap-3 rounded-xl border border-dashed border-input bg-muted/60 px-4 py-4 text-left text-sm font-semibold text-foreground/70 transition-colors hover:border-primary"
+                >
+                  <Upload className="h-5 w-5 shrink-0 text-primary" />
+                  <span className="min-w-0 break-words">
+                    {file ? file.name : "Tap to upload or take a photo of your receipt"}
+                  </span>
+                </button>
                 <FieldError message={errors["receipt"]} />
               </div>
+
 
               <button
                 type="submit"
