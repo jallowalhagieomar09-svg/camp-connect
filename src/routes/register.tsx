@@ -330,23 +330,27 @@ function RegisterPage() {
                 <span className="text-sm font-bold text-foreground/85">
                   Proof of payment (image or PDF)
                 </span>
-                <label
-                  htmlFor="receipt"
-                  className="mt-1.5 flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-input bg-muted/60 px-4 py-4 text-sm font-semibold text-foreground/70 transition-colors hover:border-primary"
-                >
-                  <Upload className="h-5 w-5 text-primary" />
-                  {file ? file.name : "Tap to upload your receipt"}
-                </label>
                 <input
                   id="receipt"
                   name="receipt"
                   type="file"
-                  accept="image/*,application/pdf"
-                  className="hidden"
+                  accept="image/*,.pdf,application/pdf"
+                  className="sr-only"
                   onChange={(event) => setFile(event.target.files?.[0] ?? null)}
                 />
+                <button
+                  type="button"
+                  onClick={() => document.getElementById("receipt")?.click()}
+                  className="mt-1.5 flex w-full cursor-pointer items-center gap-3 rounded-xl border border-dashed border-input bg-muted/60 px-4 py-4 text-left text-sm font-semibold text-foreground/70 transition-colors hover:border-primary"
+                >
+                  <Upload className="h-5 w-5 shrink-0 text-primary" />
+                  <span className="min-w-0 break-words">
+                    {file ? file.name : "Tap to upload or take a photo of your receipt"}
+                  </span>
+                </button>
                 <FieldError message={errors["receipt"]} />
               </div>
+
 
               <button
                 type="submit"
