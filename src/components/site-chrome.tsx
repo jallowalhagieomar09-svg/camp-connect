@@ -4,6 +4,7 @@ import type { CampSettings } from "@/lib/camp";
 import { phoneList } from "@/lib/camp";
 
 const NAV = [
+  { label: "Certificates", href: "/certificates" },
   { label: "About", href: "/#about" },
   { label: "Activities", href: "/#activities" },
   { label: "Fee", href: "/#fee" },
