@@ -38,6 +38,27 @@ export type Database = {
         }
         Relationships: []
       }
+      camp_participants: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          normalized_name: string
+        }
+        Insert: {
+          created_at?: string
+          full_name: string
+          id?: string
+          normalized_name: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          normalized_name?: string
+        }
+        Relationships: []
+      }
       camp_settings: {
         Row: {
           camp_dates: string
@@ -82,6 +103,35 @@ export type Database = {
           whatsapp_link?: string
         }
         Relationships: []
+      }
+      certificates: {
+        Row: {
+          certificate_number: string
+          id: string
+          issued_at: string
+          participant_id: string
+        }
+        Insert: {
+          certificate_number: string
+          id?: string
+          issued_at?: string
+          participant_id: string
+        }
+        Update: {
+          certificate_number?: string
+          id?: string
+          issued_at?: string
+          participant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificates_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: true
+            referencedRelation: "camp_participants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       registrations: {
         Row: {
@@ -179,6 +229,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      issue_certificate: { Args: { _participant_id: string }; Returns: string }
     }
     Enums: {
       app_role: "admin"
