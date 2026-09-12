@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CertificatesRouteImport } from './routes/certificates'
 import { Route as ReceiptRouteImport } from './routes/receipt'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
@@ -29,6 +30,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CertificatesRoute = CertificatesRouteImport.update({
+  id: '/certificates',
+  path: '/certificates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReceiptRoute = ReceiptRouteImport.update({
@@ -56,6 +62,7 @@ const AuthenticatedAdminSettingsRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/certificates': typeof CertificatesRoute
   '/receipt': typeof ReceiptRoute
   '/register': typeof RegisterRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/certificates': typeof CertificatesRoute
   '/receipt': typeof ReceiptRoute
   '/register': typeof RegisterRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
@@ -74,6 +82,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/certificates': typeof CertificatesRoute
   '/receipt': typeof ReceiptRoute
   '/register': typeof RegisterRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
@@ -82,14 +91,28 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/receipt' | '/register' | '/admin/settings' | '/admin/'
+    | '/'
+    | '/auth'
+    | '/certificates'
+    | '/receipt'
+    | '/register'
+    | '/admin/settings'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/receipt' | '/register' | '/admin/settings' | '/admin'
+  to:
+    | '/'
+    | '/auth'
+    | '/certificates'
+    | '/receipt'
+    | '/register'
+    | '/admin/settings'
+    | '/admin'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/certificates'
     | '/receipt'
     | '/register'
     | '/_authenticated/admin/settings'
@@ -100,6 +123,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CertificatesRoute: typeof CertificatesRoute
   ReceiptRoute: typeof ReceiptRoute
   RegisterRoute: typeof RegisterRoute
 }
@@ -125,6 +149,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/certificates': {
+      id: '/certificates'
+      path: '/certificates'
+      fullPath: '/certificates'
+      preLoaderRoute: typeof CertificatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/receipt': {
@@ -175,6 +206,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  CertificatesRoute: CertificatesRoute,
   ReceiptRoute: ReceiptRoute,
   RegisterRoute: RegisterRoute,
 }
