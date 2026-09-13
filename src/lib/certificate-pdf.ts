@@ -1,11 +1,11 @@
 import logo from "@/assets/cfg-logo.png.asset.json";
 import type { IssuedCertificate } from "./certificate.functions";
 
-const TEAL: [number, number, number] = [12, 84, 82];
-const GOLD: [number, number, number] = [201, 160, 60];
-const INK: [number, number, number] = [38, 46, 45];
-const MUTED: [number, number, number] = [110, 122, 120];
-const CREAM: [number, number, number] = [253, 251, 245];
+const GREEN: [number, number, number] = [7, 65, 52];
+const GREEN_LIGHT: [number, number, number] = [24, 92, 73];
+const GOLD: [number, number, number] = [204, 169, 73];
+const INK: [number, number, number] = [18, 55, 48];
+const WHITE: [number, number, number] = [255, 255, 253];
 
 export type CertificateEvent = {
   campName: string;
@@ -18,7 +18,7 @@ export type CertificateEvent = {
 export const CERTIFICATE_EVENT: CertificateEvent = {
   campName: "CFG Children & Youth Summer Camp 2026",
   edition: "7th Edition",
-  dates: "3rd - 9th September 2026",
+  dates: "3rd–9th September 2026",
   venue: "Kwinella Senior Secondary School",
   theme: "Empowering Youth for Peaceful Democratic Participation",
 };
@@ -48,130 +48,144 @@ export function certificateFileName(fullName: string): string {
   return `CFG-Certificate-${safe || "Participant"}.pdf`;
 }
 
-/** Builds the A4 landscape Certificate of Participation and returns it as a jsPDF document. */
+function drawCornerGeometry(doc: import("jspdf").jsPDF, width: number, height: number) {
+  doc.setFillColor(...GREEN);
+  doc.rect(0, 0, width, 15, "F");
+  doc.rect(0, height - 15, width, 15, "F");
+  doc.rect(0, 0, 14, height, "F");
+  doc.rect(width - 14, 0, 14, height, "F");
+
+  doc.setFillColor(...GREEN);
+  doc.triangle(width - 170, 0, width, 0, width, 170, "F");
+  doc.triangle(0, height - 190, 0, height, 190, height, "F");
+  doc.setFillColor(...GREEN_LIGHT);
+  doc.triangle(width - 115, 0, width, 0, width, 115, "F");
+  doc.triangle(0, height - 125, 0, height, 125, height, "F");
+
+  doc.setDrawColor(...GOLD);
+  doc.setLineWidth(9);
+  doc.line(width - 124, 0, width, 124);
+  doc.line(0, height - 139, 139, height);
+  doc.setLineWidth(3);
+  doc.line(width - 95, 0, width, 95);
+  doc.line(0, height - 104, 104, height);
+
+  doc.setFillColor(...GREEN);
+  doc.triangle(0, 245, 96, 342, 0, 439, "F");
+  doc.triangle(width, 205, width - 78, 282, width, 359, "F");
+  doc.setDrawColor(...GOLD);
+  doc.setLineWidth(6);
+  doc.line(0, 273, 68, 342);
+  doc.line(68, 342, 0, 411);
+  doc.line(width, 231, width - 50, 282);
+  doc.line(width - 50, 282, width, 333);
+
+  doc.setDrawColor(224, 208, 146);
+  doc.setLineWidth(0.4);
+  for (let i = 0; i < 9; i += 1) {
+    const offset = i * 4;
+    doc.line(18 + offset, 15, 42 + offset, 95);
+    doc.line(width - 18 - offset, height - 15, width - 42 - offset, height - 95);
+  }
+}
+
+function fitName(doc: import("jspdf").jsPDF, name: string, maxWidth: number) {
+  let size = 39;
+  doc.setFont("times", "bold");
+  while (size > 23) {
+    doc.setFontSize(size);
+    if (doc.getTextWidth(name) <= maxWidth) break;
+    size -= 1;
+  }
+  return size;
+}
+
+function drawSignature(doc: import("jspdf").jsPDF, x: number, y: number, name: string, role: string) {
+  doc.setDrawColor(41, 52, 114);
+  doc.setLineWidth(1.1);
+  doc.lines(
+    [
+      [14, -8], [8, 13], [9, -18], [7, 15], [12, -10], [10, 8], [16, -5], [13, 3],
+    ],
+    x - 44,
+    y - 10,
+  );
+  doc.setDrawColor(...GOLD);
+  doc.setLineWidth(1.5);
+  doc.line(x - 88, y + 5, x + 88, y + 5);
+  doc.setTextColor(...INK);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text(name, x, y + 21, { align: "center" });
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9.5);
+  doc.text(role, x, y + 36, { align: "center" });
+}
+
+/** Builds a vector/text A4 landscape certificate based on the official sample. */
 export async function buildCertificatePdf(certificate: IssuedCertificate) {
   const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "pt", format: "a4", orientation: "landscape" });
   const width = doc.internal.pageSize.getWidth();
   const height = doc.internal.pageSize.getHeight();
+  const centerX = width / 2;
 
-  // Background + decorative borders
-  doc.setFillColor(...CREAM);
+  doc.setFillColor(...WHITE);
   doc.rect(0, 0, width, height, "F");
+  drawCornerGeometry(doc, width, height);
 
-  doc.setFillColor(...TEAL);
-  doc.rect(0, 0, width, 14, "F");
-  doc.rect(0, height - 14, width, 14, "F");
-  doc.rect(0, 0, 14, height, "F");
-  doc.rect(width - 14, 0, 14, height, "F");
+  const logoData = await loadLogoDataUrl();
+  if (logoData) doc.addImage(logoData, "JPEG", centerX - 32, 36, 64, 64);
+
+  doc.setTextColor(...GREEN);
+  doc.setFont("times", "normal");
+  doc.setFontSize(46);
+  doc.text("CERTIFICATE", centerX, 143, { align: "center" });
+  doc.setTextColor(...GOLD);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(17);
+  doc.text("O F   P A R T I C I P A T I O N", centerX, 171, { align: "center" });
+
+  doc.setTextColor(...INK);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11.5);
+  doc.text("This is to certify that", centerX, 198, { align: "center" });
+
+  const officialName = certificate.full_name.trim();
+  doc.setTextColor(...GREEN_LIGHT);
+  doc.setFontSize(fitName(doc, officialName, width - 245));
+  doc.text(officialName, centerX, 249, { align: "center" });
 
   doc.setDrawColor(...GOLD);
-  doc.setLineWidth(3);
-  doc.rect(28, 28, width - 56, height - 56);
   doc.setLineWidth(0.8);
-  doc.rect(38, 38, width - 76, height - 76);
+  doc.line(centerX - 116, 266, centerX - 14, 266);
+  doc.line(centerX + 14, 266, centerX + 116, 266);
+  doc.circle(centerX, 266, 4);
 
-  // Corner flourishes
-  doc.setFillColor(...GOLD);
-  const corners: [number, number][] = [
-    [38, 38],
-    [width - 62, 38],
-    [38, height - 62],
-    [width - 62, height - 62],
-  ];
-  for (const [cx, cy] of corners) doc.rect(cx, cy, 24, 24, "F");
+  const body =
+    "Has participated in the Children and Youth Summer Camp organized by Children Foundation The Gambia in Kwinella from 3rd-9th September, 2026. We acknowledge and commend your active involvement and valuable contribution throughout the event.";
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(12.5);
+  doc.setTextColor(...INK);
+  const bodyLines = doc.splitTextToSize(body, 565);
+  doc.text(bodyLines, centerX, 306, { align: "center", lineHeightFactor: 1.45 });
 
-  // Logo
-  const logoData = await loadLogoDataUrl();
-  const centerX = width / 2;
-  if (logoData) {
-    doc.addImage(logoData, "PNG", centerX - 34, 56, 68, 68);
-  }
+  drawSignature(doc, width * 0.34, 434, "Nfamara Dabo", "Chairman");
+  drawSignature(doc, width * 0.66, 434, "Fatoumatta M. Jaiteh", "Administrative Officer");
 
-  doc.setTextColor(...TEAL);
-  doc.setFont("times", "bold");
-  doc.setFontSize(14);
-  doc.text("CHILDREN FOUNDATION THE GAMBIA (CFG)", centerX, logoData ? 144 : 96, {
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7.5);
+  doc.setTextColor(91, 112, 106);
+  doc.text(`Certificate ID: ${certificate.certificate_number}`, centerX, height - 24, {
     align: "center",
   });
 
-  doc.setFont("times", "bold");
-  doc.setFontSize(38);
-  doc.setTextColor(...GOLD);
-  doc.text("CERTIFICATE", centerX, 190, { align: "center" });
-  doc.setFontSize(15);
-  doc.setTextColor(...TEAL);
-  doc.text("OF PARTICIPATION", centerX, 212, { align: "center" });
-
-  doc.setDrawColor(...GOLD);
-  doc.setLineWidth(1.2);
-  doc.line(centerX - 90, 224, centerX + 90, 224);
-
-  doc.setFont("times", "italic");
-  doc.setFontSize(12.5);
-  doc.setTextColor(...MUTED);
-  doc.text("This certificate is proudly presented to", centerX, 250, { align: "center" });
-
-  // Participant name
-  doc.setFont("times", "bold");
-  doc.setFontSize(32);
-  doc.setTextColor(...INK);
-  const nameLines = doc.splitTextToSize(certificate.full_name.toUpperCase(), width - 220);
-  doc.text(nameLines, centerX, 290, { align: "center" });
-  const nameBottom = 290 + (nameLines.length - 1) * 34;
-  doc.setDrawColor(...TEAL);
-  doc.setLineWidth(1);
-  doc.line(centerX - 200, nameBottom + 14, centerX + 200, nameBottom + 14);
-
-  // Body
-  doc.setFont("times", "normal");
-  doc.setFontSize(12.5);
-  doc.setTextColor(...INK);
-  const body =
-    `for active and valued participation in the ${CERTIFICATE_EVENT.campName}, ` +
-    `${CERTIFICATE_EVENT.edition}, held from ${CERTIFICATE_EVENT.dates} at ` +
-    `${CERTIFICATE_EVENT.venue}, under the theme "${CERTIFICATE_EVENT.theme}".`;
-  const bodyLines = doc.splitTextToSize(body, width - 260);
-  doc.text(bodyLines, centerX, nameBottom + 44, { align: "center", lineHeightFactor: 1.5 });
-
-  // Signature areas
-  const signatureY = height - 96;
-  const signature = (x: number, role: string) => {
-    doc.setDrawColor(...INK);
-    doc.setLineWidth(0.8);
-    doc.line(x - 90, signatureY, x + 90, signatureY);
-    doc.setFont("times", "bold");
-    doc.setFontSize(10.5);
-    doc.setTextColor(...TEAL);
-    doc.text(role, x, signatureY + 17, { align: "center" });
-  };
-  signature(width * 0.27, "CAMP DIRECTOR");
-  signature(width * 0.73, "EXECUTIVE DIRECTOR, CFG");
-
-  // Seal + certificate id
-  doc.setFillColor(...GOLD);
-  doc.circle(centerX, signatureY - 4, 30, "F");
-  doc.setFillColor(...TEAL);
-  doc.circle(centerX, signatureY - 4, 24, "F");
-  doc.setTextColor(255, 255, 255);
-  doc.setFont("times", "bold");
-  doc.setFontSize(9);
-  doc.text("CFG", centerX, signatureY - 6, { align: "center" });
-  doc.setFontSize(6.5);
-  doc.text("2026", centerX, signatureY + 4, { align: "center" });
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8.5);
-  doc.setTextColor(...MUTED);
-  doc.text(`Certificate ID: ${certificate.certificate_number}`, 52, height - 30);
-  const issued = new Date(certificate.issued_at);
-  doc.text(
-    `Issued: ${Number.isNaN(issued.getTime()) ? "" : issued.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" })}`,
-    width - 52,
-    height - 30,
-    { align: "right" },
-  );
-
+  doc.setProperties({
+    title: `Certificate of Participation — ${officialName}`,
+    subject: CERTIFICATE_EVENT.campName,
+    author: "Children Foundation The Gambia",
+    keywords: `CFG, certificate, ${certificate.certificate_number}`,
+  });
   return doc;
 }
 

@@ -1,0 +1,2 @@
+REVOKE EXECUTE ON FUNCTION public.sync_approved_registration_to_participants() FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.sync_approved_registration_to_participants() TO service_role;

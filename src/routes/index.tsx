@@ -12,6 +12,8 @@ import {
   BookOpen,
   Mic,
   HeartHandshake,
+  Award,
+  ArrowRight,
 } from "lucide-react";
 import {
   Accordion,
@@ -39,6 +41,8 @@ export const Route = createFileRoute("/")({
         content:
           "7th Edition · 3 - 9 September 2026 · Kwinella Senior Secondary School. Theme: Empowering Youth for Peaceful Democratic Participation.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: LandingPage,
@@ -149,6 +153,37 @@ function LandingPage() {
             >
               Learn more
             </a>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y border-border bg-secondary/55">
+        <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 py-14 sm:px-6 md:grid-cols-[1fr_auto] md:py-16">
+          <div>
+            <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              <Award className="h-6 w-6" aria-hidden="true" />
+            </div>
+            <h2 className="max-w-3xl text-3xl font-black text-primary sm:text-4xl">
+              Thank You for Attending the CFG Children &amp; Youth Summer Camp 2026!
+            </h2>
+            <p className="mt-4 max-w-3xl text-sm leading-relaxed text-foreground/75 sm:text-base">
+              Thank you for being part of the CFG Children &amp; Youth Summer Camp 2026. Your
+              participation, energy and contribution helped make this camp a memorable experience.
+              We hope you enjoyed the learning, friendships, activities and experiences we shared
+              together.
+            </p>
+          </div>
+          <div className="md:min-w-64 md:text-right">
+            <p className="mb-4 text-lg font-extrabold text-primary">
+              Your Certificate of Participation is Ready!
+            </p>
+            <Link
+              to="/certificates"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-7 py-4 text-sm font-extrabold text-accent-foreground shadow-[var(--shadow-card)] transition-transform hover:scale-[1.03] md:w-auto"
+            >
+              Generate My Certificate
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
           </div>
         </div>
       </section>
