@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Award, Download, Eye, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
+import { Button } from "@/components/ui/button";
 import { campSettingsQueryOptions, FALLBACK_SETTINGS } from "@/lib/camp";
 import {
   issueCertificate,
@@ -119,7 +120,7 @@ function CertificatesPage() {
           Certificates
         </p>
         <h1 className="font-display mt-2 text-3xl font-black text-primary sm:text-4xl">
-          🎓 Generate Your Certificate
+          Generate Your Certificate
         </h1>
         <p className="mt-3 max-w-xl text-sm font-medium text-foreground/70">
           Enter your name exactly as it appears on the official camp participant list to generate
@@ -142,10 +143,11 @@ function CertificatesPage() {
             />
           </div>
           <div>
-            <button
+            <Button
               type="submit"
               disabled={searching || generatingId !== null}
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-extrabold text-primary-foreground disabled:opacity-60"
+              size="lg"
+              className="rounded-full px-6 font-extrabold"
             >
               {searching || generatingId ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -153,7 +155,7 @@ function CertificatesPage() {
                 <Search className="h-4 w-4" />
               )}
               Generate Certificate
-            </button>
+            </Button>
           </div>
         </form>
 
@@ -172,10 +174,12 @@ function CertificatesPage() {
             <ul className="mt-4 space-y-2">
               {matches.map((match) => (
                 <li key={match.id}>
-                  <button
+                  <Button
+                    type="button"
+                    variant="outline"
                     onClick={() => generate(match)}
                     disabled={generatingId !== null}
-                    className="flex w-full items-center justify-between gap-3 rounded-xl border border-border/70 px-4 py-3 text-left text-sm font-bold text-primary transition-colors hover:border-primary hover:bg-secondary/60 disabled:opacity-60"
+                    className="h-auto w-full justify-between whitespace-normal rounded-xl px-4 py-3 text-left font-bold"
                   >
                     {match.full_name}
                     {generatingId === match.id ? (
@@ -183,7 +187,7 @@ function CertificatesPage() {
                     ) : (
                       <Award className="h-4 w-4 text-accent-foreground" />
                     )}
-                  </button>
+                  </Button>
                 </li>
               ))}
             </ul>
@@ -211,18 +215,23 @@ function CertificatesPage() {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3 px-6 py-5">
-              <button
+              <Button
+                type="button"
+                variant="outline"
                 onClick={onView}
                 disabled={busy}
-                className="inline-flex items-center gap-2 rounded-full border border-primary px-6 py-3 text-sm font-extrabold text-primary disabled:opacity-60"
+                size="lg"
+                className="rounded-full border-primary px-6 font-extrabold text-primary"
               >
                 <Eye className="h-4 w-4" />
                 View Certificate
-              </button>
-              <button
+              </Button>
+              <Button
+                type="button"
                 onClick={onDownload}
                 disabled={busy}
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-extrabold text-primary-foreground disabled:opacity-60"
+                size="lg"
+                className="rounded-full px-6 font-extrabold"
               >
                 {busy ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -230,7 +239,7 @@ function CertificatesPage() {
                   <Download className="h-4 w-4" />
                 )}
                 Download Certificate
-              </button>
+              </Button>
             </div>
           </div>
         )}
