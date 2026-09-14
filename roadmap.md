@@ -1,9 +1,9 @@
 # Roadmap
 
 ## Certificate generator
-- [x] Match certificate PDF design to the official sample
-- [x] Add homepage thank-you section with "Generate My Certificate" button
-- [ ] Replace the certificate name list with the official list (Organizing Committee, Facilitators, Cooks, Participants)
-- [ ] Show each person's role on their certificate
-- [ ] Update not-found and success messages to the requested wording
-- [ ] Test lookup, role display, repeat certificate ID, and PDF download
+- [x] Match certificate design to the official sample
+- [x] Homepage thank-you section with "Generate My Certificate" button
+- [x] Official name list loaded with roles (Organizing Committee, Facilitators, Cooks, Participants)
+- [x] Role shown on each certificate
+- [x] Not-found and success messages use the requested wording
+- [x] Tested lookup, role display, certificate ID, and PDF download
