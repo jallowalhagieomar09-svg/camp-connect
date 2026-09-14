@@ -162,13 +162,19 @@ export async function buildCertificatePdf(certificate: IssuedCertificate) {
   doc.line(centerX + 14, 266, centerX + 116, 266);
   doc.circle(centerX, 266, 4);
 
+  const role = (certificate.role || "Participant").trim();
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(...GOLD);
+  doc.text(role.toUpperCase(), centerX, 288, { align: "center", charSpace: 1.2 });
+
   const body =
     "Has participated in the Children and Youth Summer Camp organized by Children Foundation The Gambia in Kwinella from 3rd-9th September, 2026. We acknowledge and commend your active involvement and valuable contribution throughout the event.";
   doc.setFont("helvetica", "normal");
   doc.setFontSize(12.5);
   doc.setTextColor(...INK);
   const bodyLines = doc.splitTextToSize(body, 565);
-  doc.text(bodyLines, centerX, 306, { align: "center", lineHeightFactor: 1.45 });
+  doc.text(bodyLines, centerX, 318, { align: "center", lineHeightFactor: 1.45 });
 
   drawSignature(doc, width * 0.34, 434, "Nfamara Dabo", "Chairman");
   drawSignature(doc, width * 0.66, 434, "Fatoumatta M. Jaiteh", "Administrative Officer");
