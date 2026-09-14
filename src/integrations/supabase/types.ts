@@ -44,18 +44,21 @@ export type Database = {
           full_name: string
           id: string
           normalized_name: string
+          role: string
         }
         Insert: {
           created_at?: string
           full_name: string
           id?: string
           normalized_name: string
+          role?: string
         }
         Update: {
           created_at?: string
           full_name?: string
           id?: string
           normalized_name?: string
+          role?: string
         }
         Relationships: []
       }
