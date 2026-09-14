@@ -62,7 +62,7 @@ function CertificatesPage() {
     setMatches(null);
     setCertificate(null);
     try {
-      const response = await search({ data: { name } });
+      const response = await search({ data: { name: name.trim().replace(/\s+/g, " ") } });
       if (response.matches.length === 0) setNotFound(true);
       else if (response.matches.length === 1) await generate(response.matches[0]!);
       else setMatches(response.matches);
@@ -79,6 +79,9 @@ function CertificatesPage() {
       const issued = await issue({ data: { participantId: participant.id } });
       setCertificate(issued);
       setMatches(null);
+      toast.success(
+        "Your certificate has been generated successfully. Thank you for being part of the CFG Children and Youth Summer Camp!",
+      );
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not generate the certificate");
     } finally {
@@ -162,8 +165,8 @@ function CertificatesPage() {
         {notFound && (
           <div className="card-soft mt-6 border border-destructive/30 p-6">
             <p className="text-sm font-semibold text-foreground/85">
-              ❌ We couldn't find that name on the official camp participant list. Please check the
-              spelling and try again.
+              We could not find a certificate for this name. Please check the spelling and try
+              again.
             </p>
           </div>
         )}
@@ -181,7 +184,12 @@ function CertificatesPage() {
                     disabled={generatingId !== null}
                     className="h-auto w-full justify-between whitespace-normal rounded-xl px-4 py-3 text-left font-bold"
                   >
-                    {match.full_name}
+                    <span>
+                      {match.full_name}
+                      <span className="block text-xs font-semibold text-foreground/60">
+                        {match.role}
+                      </span>
+                    </span>
                     {generatingId === match.id ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
@@ -204,6 +212,7 @@ function CertificatesPage() {
                 Certificate of Participation
               </p>
               <h2 className="font-display mt-1 text-2xl font-black">{certificate.full_name}</h2>
+              <p className="mt-1 text-sm font-bold text-accent">{certificate.role}</p>
               <p className="mt-2 text-xs font-semibold text-primary-foreground/80">
                 {CERTIFICATE_EVENT.campName} · {CERTIFICATE_EVENT.edition}
               </p>
