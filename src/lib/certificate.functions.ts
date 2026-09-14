@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 
-export type ParticipantMatch = { id: string; full_name: string };
+export type ParticipantMatch = { id: string; full_name: string; role: string };
 
 function normalize(value: string): string {
   return value.trim().replace(/\s+/g, " ").toLowerCase();
@@ -25,7 +25,7 @@ export const searchParticipants = createServerFn({ method: "POST" })
     const filter = queryTokens.map((token) => `normalized_name.ilike.%${token}%`).join(",");
     const { data: rows, error } = await supabaseAdmin
       .from("camp_participants")
-      .select("id, full_name, normalized_name")
+      .select("id, full_name, normalized_name, role")
       .or(filter)
       .limit(200);
 
@@ -33,7 +33,7 @@ export const searchParticipants = createServerFn({ method: "POST" })
 
     const exact = (rows ?? []).filter((row) => row.normalized_name === normalize(data.name));
     if (exact.length > 0) {
-      return { matches: exact.map((row) => ({ id: row.id, full_name: row.full_name })) };
+      return { matches: exact.map((row) => ({ id: row.id, full_name: row.full_name, role: row.role })) };
     }
 
     if (queryTokens.length === 1) return { matches: [] };
@@ -44,13 +44,14 @@ export const searchParticipants = createServerFn({ method: "POST" })
         return queryTokens.every((token) => rowTokens.includes(token));
       })
       .slice(0, 8)
-      .map((row) => ({ id: row.id, full_name: row.full_name }));
+      .map((row) => ({ id: row.id, full_name: row.full_name, role: row.role }));
 
     return { matches };
   });
 
 export type IssuedCertificate = {
   full_name: string;
+  role: string;
   certificate_number: string;
   issued_at: string;
 };
@@ -65,7 +66,7 @@ export const issueCertificate = createServerFn({ method: "POST" })
 
     const { data: participant, error: participantError } = await supabaseAdmin
       .from("camp_participants")
-      .select("id, full_name")
+      .select("id, full_name, role")
       .eq("id", data.participantId)
       .maybeSingle();
 
@@ -88,6 +89,7 @@ export const issueCertificate = createServerFn({ method: "POST" })
 
     return {
       full_name: participant.full_name,
+      role: participant.role,
       certificate_number: certificate.certificate_number,
       issued_at: certificate.issued_at,
     };
