@@ -69,13 +69,13 @@ export async function buildCertificatePdf(certificate: IssuedCertificate) {
   const officialName = certificate.full_name.trim();
   doc.setTextColor(...GREEN);
   doc.setFontSize(fitName(doc, officialName, width * 0.62));
-  doc.text(officialName, centerX, 272, { align: "center" });
+  doc.text(officialName, centerX, 262, { align: "center" });
 
   const role = (certificate.role || "Participant").trim();
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.setTextColor(...GOLD);
-  doc.text(role.toUpperCase(), centerX, 333, { align: "center", charSpace: 1.4 });
+  doc.text(role.toUpperCase(), centerX, 298, { align: "center", charSpace: 1.4 });
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
