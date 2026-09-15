@@ -7,3 +7,4 @@
 - [x] Role shown on each certificate
 - [x] Not-found and success messages use the requested wording
 - [x] Tested lookup, role display, certificate ID, and PDF download
+- [x] Certificate PDF now uses the uploaded sample image exactly, with only name and role printed
