@@ -8,4 +8,4 @@
 - [x] Not-found and success messages use the requested wording
 - [x] Tested lookup, role display, certificate ID, and PDF download
 - [x] Certificate PDF now uses the uploaded sample image exactly, with only name and role printed
-- [ ] Include the camp theme on the certificate
+- [x] Include the camp theme on the certificate

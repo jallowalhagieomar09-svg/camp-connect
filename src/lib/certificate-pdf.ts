@@ -77,6 +77,11 @@ export async function buildCertificatePdf(certificate: IssuedCertificate) {
   doc.setTextColor(...GOLD);
   doc.text(role.toUpperCase(), centerX, 298, { align: "center", charSpace: 1.4 });
 
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(10);
+  doc.setTextColor(...GREEN);
+  doc.text(`Theme: “${CERTIFICATE_EVENT.theme}”`, centerX, 320, { align: "center" });
+
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
   doc.setTextColor(110, 125, 118);
